@@ -25,7 +25,7 @@ limitations under the License.
 #define __vtkIntersonSDKCxxVideoSourceeWindow_h
 
 #include "vtkPlusIntersonSDKCxxVideoSource.h"
-#include "ui_interson_test.h"
+#include "ui_UltrasoundSpectroscopyRecorder.h"
 #include <QTimer>
 
 class vtkIntersonSDKCxxVideoSourceWindow : public vtkPlusIntersonSDKCxxVideoSource

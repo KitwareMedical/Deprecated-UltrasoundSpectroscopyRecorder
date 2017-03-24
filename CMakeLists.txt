@@ -9,7 +9,7 @@ find_package( VTK REQUIRED )
 include( ${VTK_USE_FILE} )
 
 find_package(Qt5Widgets REQUIRED)
-qt5_wrap_ui( mytest_UI_H interson_test.ui )
+qt5_wrap_ui( mytest_UI_H UltrasoundSpectroscopyRecorder.ui )
 qt5_wrap_cpp( source_files_moc myWindow.hxx )
 
 set( source_files

@@ -25,7 +25,7 @@ limitations under the License.
 #include "vtkImageViewer.h"
 #include "vtkRenderWindowInteractor.h"
 
-#include "ui_interson_test.h"
+#include "ui_UltrasoundSpectroscopyRecorder.h"
 
 #include <iostream>
 #include <QtGui>
