@@ -67,6 +67,8 @@ protected slots:
   void SetPulseStep();
   void SetFrequencyMHz( double frequency );
 
+  void SetOutputFolder( QString outputFolder );
+  QString GetOutputFolder() const;
 
 protected:
   int GetPulseMin() const;
@@ -85,6 +87,7 @@ private:
   bool restart; // = true if we start a new record
   bool record; // = true if we record the images, false if we only display them
   vtkPlusTrackedFrameList* recordedFrames;
+  QString outputFolder;
 };
 
 #endif

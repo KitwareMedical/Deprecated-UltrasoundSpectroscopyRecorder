@@ -155,6 +155,15 @@ void myWindow::ActionStart()
 	disconnect(ui->pushButton_start, SIGNAL(clicked()), this, SLOT(ActionStart()));
 	connect(ui->pushButton_start, SIGNAL(clicked()), this, SLOT(Stop()));
 
+    QString outputFolder = QFileDialog::getExistingDirectory( this, "Choose directory to save the captured images", "C://" );
+    if( outputFolder.isEmpty() || outputFolder.isNull() )
+      {
+        LOG_ERROR( "Folder not valid. Application stopped." )
+        Stop();
+        return;
+      }
+    SetOutputFolder( outputFolder );
+
 	if (IntersonDeviceWindow->Connect() != PLUS_SUCCESS)
 	{
 		LOG_ERROR("Unable to connect to Interson Probe");
@@ -208,17 +217,17 @@ void myWindow::UpdateImage()
 			std::string frequency = std::to_string(GetFrequency());
 			std::replace(frequency.begin(), frequency.end(), '.', '_');
 			frequency.erase(3);
-			std::string outputFolder = "C:\\Results";
+			QString outputFolder = this->GetOutputFolder();
 			std::string path;
-			if (CreateDirectory(outputFolder.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()) // create the folder C:\Results if it doesn't exist
+			//if (CreateDirectory(outputFolder.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()) // create the folder C:\Results_UltrasoundSpectroscopyRecorder if it doesn't exist
 			{
-				path = outputFolder + "\\VideoBufferMetafile_Rfmode-" + frequency + "MHz-" + std::to_string(pulseValue) + "V-";
+				path = outputFolder.toStdString() + "\\VideoBufferMetafile_Rfmode-" + frequency + "MHz-" + std::to_string(pulseValue) + "V-";
 			}
-			else
+			/*else
 			{
-				LOG_ERROR("Failed to create the directory C:\Results");
+				LOG_ERROR("Failed to create the directory C:\\Results_UltrasoundSpectroscopyRecorder");
 				return;
-			}
+			}*/
 			IntersonDeviceWindow->SetOutputVideoBufferSequenceFileNameRfmode(path);
 
 			AddTrackedFramesToList();
