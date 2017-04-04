@@ -8,7 +8,8 @@ include( ${PlusLib_USE_FILE} )
 find_package( VTK REQUIRED )
 include( ${VTK_USE_FILE} )
 
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+
 qt5_wrap_ui( mytest_UI_H UltrasoundSpectroscopyRecorder.ui )
 qt5_wrap_cpp( source_files_moc myWindow.hxx )
 
@@ -31,5 +32,5 @@ add_executable( UltrasoundSprectroscopyRecorder
 target_link_libraries( UltrasoundSprectroscopyRecorder 
   ${VTK_LIBRARIES}
   ${PlusLib_LIBRARIES}
-  ${QT_LIBRARIES}
+  Qt5::Widgets
   )
