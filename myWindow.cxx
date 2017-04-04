@@ -45,6 +45,11 @@ limitations under the License.
 #include <QFileDialog>
 #include <vtkInteractorStyleImage.h>
 
+// Interson Array probe
+const double IntersonFrequencies[] = { 5.0, 7.5, 10.0 };
+// Interson probe
+//const double frequencies[] = { 2.5, 3.5, 5.0 };
+
 myWindow::myWindow(QWidget *parent)
 	:QMainWindow(parent), ui(new Ui::MainWindow), recordedFrames(NULL), restart(TRUE)
 {
@@ -84,15 +89,15 @@ myWindow::~myWindow()
 
 void myWindow::ActionDisplay()
 {
+    std::cout << "Connect Interson probe" << std::endl;
 	if (IntersonDeviceWindow->Connect() != PLUS_SUCCESS)
 	{
 		LOG_ERROR("Unable to connect to Interson Probe");
 		exit(EXIT_FAILURE);
 	}
 	this->record = false;
-
-	LOG_INFO("The frequency is set to 2.5MHz.");
-	SetFrequency2_5MHz();
+	LOG_INFO("The frequency is set to 5MHz.");
+    SetFrequencyMHz( IntersonFrequencies[ 0 ] );
 
 	//Set the values of the probe for the display
 	if (GetPulseMin() == 0)
@@ -120,7 +125,7 @@ void myWindow::ActionDisplay()
 void myWindow::ActionStart()
 {
 	LOG_INFO("Checking of the frequency and pulse values.");
-	SetFrequency2_5MHz();
+    SetFrequencyMHz( IntersonFrequencies[ 0 ] );
 
 	if (GetPulseMin() == 0 || GetPulseMax() == 0)
 	{
@@ -156,7 +161,7 @@ void myWindow::ActionStart()
 		exit(EXIT_FAILURE);
 	}
 	this->record = true;
-	this-> restart = true;
+	this->restart = true;
 
 	// Set the initial default values
 	this->SetPulseMin();
@@ -221,10 +226,9 @@ void myWindow::UpdateImage()
 			IntersonDeviceWindow->StopRecording();
 
 			// Update the pulse and the frequency of the probe
-			if (pulseValue >= this->GetPulseMax() && GetFrequency() >= 5.0)
+			if (pulseValue >= this->GetPulseMax() && GetFrequency() >= IntersonFrequencies[ 2 ] )
 			{
-				this->timer->stop();
-				IntersonDeviceWindow->Disconnect();
+                Stop();
 				return;
 			}
 			else
@@ -232,13 +236,13 @@ void myWindow::UpdateImage()
 				if (pulseValue >= GetPulseMax())
 				{
 					pulseValue = GetPulseMin();
-					if (GetFrequency() == 2.5)
+					if (GetFrequency() == IntersonFrequencies[ 0 ] )
 					{
-						SetFrequency3_5MHz();
+                      SetFrequencyMHz( IntersonFrequencies[ 1 ] );
 					}
-					else if (GetFrequency() == 3.5)
+					else if (GetFrequency() == IntersonFrequencies[ 1 ] )
 					{
-						SetFrequency5MHz();
+                      SetFrequencyMHz( IntersonFrequencies[ 2 ] );
 					}
 					IntersonDeviceWindow->SetProbeFrequencyMhz(GetFrequency());
 				}
@@ -263,13 +267,15 @@ void myWindow::UpdateImage()
 
 void myWindow::Stop()
 {
-	LOG_INFO("Recording stopped");
+	LOG_INFO("Recording stopped");    
+    this->timer->stop();
+    IntersonDeviceWindow->StopRecording();
+    IntersonDeviceWindow->Disconnect();
 	ui->pushButton_start->setText("Start");
 	ui->pushButton_start->setIcon(QPixmap("../UltrasoundSpectroscopyRecorder/Resources/icon_Record.png"));
 	//ui->pushButton_start->setFocus();
 	disconnect(ui->pushButton_start, SIGNAL(clicked()), this, SLOT(Stop()));
 	connect(ui->pushButton_start, SIGNAL(clicked()), this, SLOT(ActionStart()));
-	this->timer->stop();
 }
 
 void myWindow::ActionQuit()
@@ -325,19 +331,19 @@ double myWindow::GetFrequency() const
 	return this->IntersonDeviceWindow->GetFrequency();
 }
 
-void myWindow::SetFrequency2_5MHz()
+void myWindow::SetFrequencyMHz(double frequency)
 {
-	this->IntersonDeviceWindow->SetFrequency(2.5);
+  this->IntersonDeviceWindow->SetFrequency( frequency );
 }
 
-void myWindow::SetFrequency3_5MHz()
+void myWindow::SetOutputFolder( QString outputFolder )
 {
-	this->IntersonDeviceWindow->SetFrequency(3.5);
+  this->outputFolder = outputFolder;
 }
 
-void myWindow::SetFrequency5MHz()
+QString myWindow::GetOutputFolder() const
 {
-	this->IntersonDeviceWindow->SetFrequency(5);
+  return this->outputFolder;
 }
 
 void myWindow::AddTrackedFramesToList()
