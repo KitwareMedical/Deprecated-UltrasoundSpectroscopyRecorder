@@ -24,11 +24,11 @@ limitations under the License.
 #ifndef __vtkIntersonSDKCxxVideoSourceWindow_h
 #define __vtkIntersonSDKCxxVideoSourceeWindow_h
 
-#include "vtkPlusIntersonSDKCxxVideoSource.h"
-#include "ui_interson_test.h"
+#include "vtkPlusIntersonArraySDKCxxVideoSource.h"
+#include "ui_UltrasoundSpectroscopyRecorder.h"
 #include <QTimer>
 
-class vtkIntersonSDKCxxVideoSourceWindow : public vtkPlusIntersonSDKCxxVideoSource
+class vtkIntersonSDKCxxVideoSourceWindow : public vtkPlusIntersonArraySDKCxxVideoSource
 {
 public:
 	static vtkIntersonSDKCxxVideoSourceWindow *New();

@@ -45,47 +45,49 @@ class myWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	myWindow(QWidget *parent = nullptr);
-	~myWindow();
+  myWindow(QWidget *parent = nullptr);
+  ~myWindow();
 
   void SetIntersonDevice(vtkIntersonSDKCxxVideoSourceWindow* source);
 
 protected slots:
-	/** Quit the application */
-	void ActionQuit();
-	/** Start the application */
-	void ActionStart();
-	/** View the B-mode images without recording */
-	void ActionDisplay();
-	/** Update the images displayed from the probe */
+  /** Quit the application */
+  void ActionQuit();
+  /** Start the application */
+  void ActionStart();
+  /** View the B-mode images without recording */
+  void ActionDisplay();
+  /** Update the images displayed from the probe */
   void UpdateImage();
-	/** Slot handling stop button click (Record button becomes Stop after clicking) */
-	void Stop();
+  /** Slot handling stop button click (Record button becomes Stop after clicking) */
+  void Stop();
 
-	void SetPulseMin();
-	void SetPulseMax();
-	void SetPulseStep();
-	void SetFrequency2_5MHz();
-	void SetFrequency3_5MHz();
-	void SetFrequency5MHz();
+  void SetPulseMin();
+  void SetPulseMax();
+  void SetPulseStep();
+  void SetFrequencyMHz( double frequency );
+
+  void SetOutputFolder( QString outputFolder );
+  QString GetOutputFolder() const;
 
 protected:
-	int GetPulseMin() const;
-	int GetPulseMax() const;
-	int GetPulseStep() const;
-	double GetFrequency() const;
-	void AddTrackedFramesToList();
-	void SaveTrackedFrames();
-	void WriteToFile(const QString& aFilename);
+  int GetPulseMin() const;
+  int GetPulseMax() const;
+  int GetPulseStep() const;
+  double GetFrequency() const;
+  void AddTrackedFramesToList();
+  void SaveTrackedFrames();
+  void WriteToFile(const QString& aFilename);
 
 private:
-	/** Layout for the Window */
-	Ui::MainWindow *ui;
+  /** Layout for the Window */
+  Ui::MainWindow *ui;
   vtkSmartPointer<vtkIntersonSDKCxxVideoSourceWindow> IntersonDeviceWindow;
   QTimer *timer;
-	bool restart; // = true if we start a new record
-	bool record; // = true if we record the images, false if we only display them
-	vtkPlusTrackedFrameList* recordedFrames;
+  bool restart; // = true if we start a new record
+  bool record; // = true if we record the images, false if we only display them
+  vtkPlusTrackedFrameList* recordedFrames;
+  QString outputFolder;
 };
 
 #endif
