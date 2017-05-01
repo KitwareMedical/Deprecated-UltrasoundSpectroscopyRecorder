@@ -182,14 +182,6 @@ void myWindow::ActionStart()
 
 	this->IntersonDeviceWindow->StartRecording(); // start recording frames for the video
 
-	// Show the live ultrasound image in a VTK renderer window
-	vtkSmartPointer<vtkImageViewer2> viewer = vtkSmartPointer<vtkImageViewer2>::New();
-	viewer->SetInputConnection(this->IntersonDeviceWindow->GetOutputPort());   //set image to the render and window
-	viewer->SetColorWindow(255);
-	viewer->SetColorLevel(127.5);
-	viewer->SetRenderWindow(ui->vtkRenderer->GetRenderWindow()); //the main thing!
-	viewer->Render();
-
 	this->timer->setInterval(50);
 	this->connect(timer, SIGNAL(timeout()), SLOT(UpdateImage()));
 	this->timer->start();
@@ -198,7 +190,6 @@ void myWindow::ActionStart()
 void myWindow::UpdateImage()
 {
 	unsigned long frameNumber = IntersonDeviceWindow->GetFrameNumber();
-	ui->vtkRenderer->GetRenderWindow()->Render();
 	static unsigned int previousFrame = 0;
 
 	if (record == true)
@@ -248,13 +239,15 @@ void myWindow::UpdateImage()
 				}
 				IntersonDeviceWindow->SetPulseVoltage(pulseValue);
 			}
-
 			this->IntersonDeviceWindow->StartRecording();
 			this->timer->setInterval(10);
 		}
 	}
+    else
+    {
+	  ui->vtkRenderer->GetRenderWindow()->Render();
+    }
 	this->timer->start();
-	ui->vtkRenderer->GetRenderWindow()->Render();
 }
 
 void myWindow::Stop()
