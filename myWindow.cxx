@@ -178,6 +178,7 @@ void myWindow::ActionStart()
 	this->SetPulseStep();
 	this->IntersonDeviceWindow->SetProbeFrequencyMhz(IntersonDeviceWindow->GetFrequency());
 	this->IntersonDeviceWindow->SetPulseVoltage(IntersonDeviceWindow->GetPulseMin());
+    this->pulseValue = GetPulseMin();
 
 	this->IntersonDeviceWindow->StartRecording(); // start recording frames for the video
 
@@ -198,7 +199,6 @@ void myWindow::UpdateImage()
 {
 	unsigned long frameNumber = IntersonDeviceWindow->GetFrameNumber();
 	ui->vtkRenderer->GetRenderWindow()->Render();
-	static int pulseValue = GetPulseMin();
 	static unsigned int previousFrame = 0;
 
 	if (record == true)
@@ -213,30 +213,13 @@ void myWindow::UpdateImage()
 		if (frameNumber != 0 && frameNumber > previousFrame)
 		{
 			previousFrame = frameNumber;
-
-			std::string frequency = std::to_string(GetFrequency());
-			std::replace(frequency.begin(), frequency.end(), '.', '_');
-			frequency.erase(3);
-			QString outputFolder = this->GetOutputFolder();
-			std::string path;
-			//if (CreateDirectory(outputFolder.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()) // create the folder C:\Results_UltrasoundSpectroscopyRecorder if it doesn't exist
-			{
-				path = outputFolder.toStdString() + "\\VideoBufferMetafile_Rfmode-" + frequency + "MHz-" + std::to_string(pulseValue) + "V-";
-			}
-			/*else
-			{
-				LOG_ERROR("Failed to create the directory C:\\Results_UltrasoundSpectroscopyRecorder");
-				return;
-			}*/
-			IntersonDeviceWindow->SetOutputVideoBufferSequenceFileNameRfmode(path);
-
 			AddTrackedFramesToList();
-			SaveTrackedFrames();
 			IntersonDeviceWindow->StopRecording();
 
 			// Update the pulse and the frequency of the probe
 			if (pulseValue >= this->GetPulseMax() && GetFrequency() >= IntersonFrequencies[ 2 ] )
 			{
+                SaveTrackedFrames();
                 Stop();
 				return;
 			}
@@ -280,6 +263,7 @@ void myWindow::Stop()
     this->timer->stop();
     IntersonDeviceWindow->StopRecording();
     IntersonDeviceWindow->Disconnect();
+    recordedFrames->Clear();
 	ui->pushButton_start->setText("Start");
 	ui->pushButton_start->setIcon(QPixmap("../UltrasoundSpectroscopyRecorder/Resources/icon_Record.png"));
 	//ui->pushButton_start->setFocus();
@@ -398,17 +382,42 @@ void myWindow::AddTrackedFramesToList()
 		LOG_WARNING("Frame could not be added because validation failed!");
 		return;
 	}
+    std::string frequency = std::to_string( GetFrequency() );
+    std::replace( frequency.begin(), frequency.end(), '.', '_' );
+    frequency.erase( 3 );
+    recordedFrames->GetTrackedFrame( recordedFrames->GetNumberOfTrackedFrames() - 1 )->SetCustomFrameField( "RecordInformation", frequency + "MHz-" + std::to_string( pulseValue ) + "V-" );
+    std::cout << "New frame acquired for frequency = " << GetFrequency() << " MHz and power = " << pulseValue << " V" << std::endl;
 }
 
 void myWindow::SaveTrackedFrames()
 {
-	//Save
-	std::string defaultFileName = this->IntersonDeviceWindow->GetOutputVideoBufferSequenceFileNameRfmode() + vtksys::SystemTools::GetCurrentDateTime("%Y%m%d_%H%M%S") + ".nrrd";
-	if (recordedFrames->GetNumberOfTrackedFrames() > 0)
+    QString outputFolder = this->GetOutputFolder();
+
+    
+	if (recordedFrames->GetNumberOfTrackedFrames() > 0 )
 	{
-		WriteToFile(QString(defaultFileName.c_str()));
-		LOG_INFO("Captured tracked frame list saved into '" << defaultFileName << "'");
-		recordedFrames->Clear();
+        std::string path;
+        vtkPlusTrackedFrameList* currentFrame = vtkPlusTrackedFrameList::New();
+        currentFrame->SetValidationRequirements( REQUIRE_UNIQUE_TIMESTAMP );
+
+        for( unsigned int i = 0; i < recordedFrames->GetNumberOfTrackedFrames(); i++ )
+        {
+            path = outputFolder.toStdString() + "\\VideoBufferMetafile_Rfmode-" + recordedFrames->GetTrackedFrame(i)->GetCustomFrameField( "RecordInformation" );
+            std::string defaultFileName = path + vtksys::SystemTools::GetCurrentDateTime( "%Y%m%d_%H%M%S" ) + ".nrrd";
+
+            PlusTrackedFrame* essai = recordedFrames->GetTrackedFrame( i );
+            if (currentFrame->AddTrackedFrame( essai, vtkPlusTrackedFrameList::SKIP_INVALID_FRAME ) != PLUS_SUCCESS )
+            {
+                LOG_WARNING( "Frame could not be added because validation failed!" );
+                return;
+            }
+
+            WriteToFile( QString( defaultFileName.c_str() ), currentFrame );
+
+            LOG_INFO( "Captured tracked frame list saved into '" << defaultFileName << "'" );
+            currentFrame->Clear();
+        }
+        recordedFrames->Clear();
 	}
 	else
 	{
@@ -417,7 +426,7 @@ void myWindow::SaveTrackedFrames()
 }
 
 
-void myWindow::WriteToFile(const QString& aFilename)
+void myWindow::WriteToFile(const QString& aFilename, vtkPlusTrackedFrameList* currentFrame )
 {
 	if (aFilename.isEmpty())
 	{
@@ -428,7 +437,7 @@ void myWindow::WriteToFile(const QString& aFilename)
 	QApplication::setOverrideCursor(QCursor(Qt::BusyCursor));
 
 	// Actual saving
-	if (vtkPlusSequenceIO::Write(aFilename.toLatin1().constData(), recordedFrames, US_IMG_ORIENT_FM) != PLUS_SUCCESS)
+	if (vtkPlusSequenceIO::Write(aFilename.toLatin1().constData(), currentFrame, US_IMG_ORIENT_FM) != PLUS_SUCCESS)
 	{
 		LOG_ERROR("Failed to save tracked frames to sequence metafile!");
 		return;
@@ -436,7 +445,7 @@ void myWindow::WriteToFile(const QString& aFilename)
 
 	QString result = "File saved to\n" + aFilename;
 
-	recordedFrames->Clear();
+	currentFrame->Clear();
 
 	QApplication::restoreOverrideCursor();
 }

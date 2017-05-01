@@ -77,7 +77,7 @@ protected:
   double GetFrequency() const;
   void AddTrackedFramesToList();
   void SaveTrackedFrames();
-  void WriteToFile(const QString& aFilename);
+  void WriteToFile(const QString& aFilename, vtkPlusTrackedFrameList* currentFrame );
 
 private:
   /** Layout for the Window */
@@ -88,6 +88,7 @@ private:
   bool record; // = true if we record the images, false if we only display them
   vtkPlusTrackedFrameList* recordedFrames;
   QString outputFolder;
+  int pulseValue;
 };
 
 #endif
