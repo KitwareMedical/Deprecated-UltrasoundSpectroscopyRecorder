@@ -8,11 +8,11 @@ Build each in "Release" configuration and in the following order:
 
 1. Qt5 (Yup, 5)
 2. VTK
-   + Note that Slicer's VTK uses an external zlib, so compile VTK from scratch instead of using Slicer's VTK.
-   + github.com:/Kitware/VTK
-3. Enable VTK_Group_Qt
+   + Enable VTK_Group_Qt
    + Specify use of QT_VERSION 5
    + If using installation of Qt5 from trolltech, specify CMAKE_PREFIX_PATH = c:\src\qt5\5.8\msvc2013_64 (or equivalent.  You will need to add this variable to the cmake configuration (e.g., use AddEntry in cmake-gui).  Then it will automatically find your Qt5_DIR.
+   + Note that Slicer's VTK cannot be used.
+   + github.com:/Kitware/VTK
 4. ITK
    + github.com:/Kitware/ITK
    + To get the most up-to-date version, do not use the version in Slicer.
