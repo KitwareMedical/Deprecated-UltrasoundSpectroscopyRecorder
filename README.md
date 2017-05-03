@@ -5,7 +5,6 @@ A Plus-based application to record ultrasound images with the Interson GP 3.5 pr
 # Requirements
 
 Build each in "Release" configuration and in the following order:
-
 1. Qt5 (Yup, 5)
 2. VTK
    + Enable VTK_Group_Qt
@@ -23,7 +22,7 @@ Build each in "Release" configuration and in the following order:
 7. IntersonSDKCxx (Must be INSTALLED - cannot use build dir)
    + github.com:/KitwareMedical/IntersonSDKCxx
 8. IntersonArraySDKCxx (Must be INSTALLED - cannot use build dir)
-   + github.com:/KitwareMedical/IntersonSDKCxx
+   + github.com:/KitwareMedical/IntersonArraySDKCxx
 9. PlusLib
    + Enable IntersonSDKCxx and point to directory in which it is INSTALLED
    + Enable IntersonArraySDKCxx and point to directory in which it is INSTALLED
@@ -37,7 +36,6 @@ DLL Hell:
 If you want to run this from the command-line (versus from within visual studio), you are likely to end up with the executable starting and then immediately ending.   This is likely to be due to missing dlls.   You can use "dependency walker" to try to diagnose the dlls that are missing.
 
 In general, you will need dlls for the following to be in your environment's PATH or copied into the executable's directory:
-
 1. QT5
 2. VTK
 3. ITK
