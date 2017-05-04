@@ -6,6 +6,9 @@ A Plus-based application to record ultrasound images with the Interson GP 3.5 pr
 
 Build each in "Release" configuration and in the following order:
 1. Qt5 (Yup, 5)
+   + Use VS 2013 or 2015 and QT 5.8 make sure you use the QT installer that matches your VS version (otherwise you'll get a linker error).
+     + with VS 2012 QT complains about c++11 compliancy.
+     + VS 2017 conplains about a QT bug thats fixed in 5.9 but with 5.9 VTK complains.   
 2. VTK
    + Enable VTK_Group_Qt
    + Specify use of QT_VERSION 5
