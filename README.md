@@ -32,6 +32,8 @@ Build each in "Release" configuration and in the following order:
    + Enable IntersonArraySDKCxx and point to directory in which it is INSTALLED
       + Compliation works with build dir
    + Ninja build files introduce errors. You will need to replace $(PlatformToolset) with $$(PlatformToolset) in build.ninja.
+10. UltrasoundSpectroscopyRecorder
+    + I had to copy IntersonArraySDKcxx.lib and IntersonSDK.lib from their build dircetories to the build dir. They couldn't be found otherwise.
 
 You also need to pass in argument the config-file used for the Interson probe.
 
