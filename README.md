@@ -34,6 +34,8 @@ Build each in "Release" configuration and in the following order:
    + Ninja build files introduce errors. You will need to replace $(PlatformToolset) with $$(PlatformToolset) in build.ninja.
 10. UltrasoundSpectroscopyRecorder
     + I had to copy IntersonArraySDKcxx.lib and IntersonSDK.lib from their build dircetories to the build dir. They couldn't be found otherwise.
+    + IntersonArrayCxxControlsHWControls.cxx has a line #using IntersonArray.dll, this requires that IntersonArray.dll is either in the LIBPATH or in directory the exectubale is run in. 
+    + For running from commandline all dll's used also need ito be in the PATH (see below).
 
 You also need to pass in argument the config-file used for the Interson probe.
 
