@@ -8,7 +8,7 @@ Build each in "Release" configuration and in the following order:
 1. Qt5 (Yup, 5)
    + Use VS 2013 or 2015 and QT 5.8 make sure you use the QT installer that matches your VS version (otherwise you'll get a linker error).
      + with VS 2012 QT complains about c++11 compliancy.
-     + VS 2017 conplains about a QT bug thats fixed in 5.9 but with 5.9 VTK complains.   
+     + VS 2017 complains about a QT bug thats fixed in 5.9 but with 5.9 VTK complains.   
 2. VTK
    + Enable VTK_Group_Qt
    + Specify use of QT_VERSION 5
@@ -27,8 +27,11 @@ Build each in "Release" configuration and in the following order:
 8. IntersonArraySDKCxx (Must be INSTALLED - cannot use build dir)
    + github.com:/KitwareMedical/IntersonArraySDKCxx
 9. PlusLib
+   + https://github.com/PlusToolkit/PlusLib
    + Enable IntersonSDKCxx and point to directory in which it is INSTALLED
    + Enable IntersonArraySDKCxx and point to directory in which it is INSTALLED
+      + Compliation works with build dir
+   + Ninja build files introduce errors. You will need to replace $(PlatformToolset) with $$(PlatformToolset) in build.ninja.
 
 You also need to pass in argument the config-file used for the Interson probe.
 
