@@ -51,7 +51,7 @@ const double IntersonFrequencies[] = { 5.0, 7.5, 10.0 };
 //const double frequencies[] = { 2.5, 3.5, 5.0 };
 
 myWindow::myWindow( QWidget *parent )
-  :QMainWindow( parent ), ui( new Ui::MainWindow ), recordedFrames( NULL ), restart( TRUE )
+  :QMainWindow( parent ), ui( new Ui::MainWindow ), recordedFrames( NULL ), start( TRUE ), failRestart( FALSE ), timerHits( 0 )
 {
   LOG_INFO( "Generate the new Window" );
 
@@ -172,7 +172,7 @@ void myWindow::ActionStart()
     exit( EXIT_FAILURE );
     }
   this->record = true;
-  this->restart = true;
+  this->start = true;
 
   // Set the initial default values
   this->SetPulseMin();
@@ -196,24 +196,30 @@ void myWindow::UpdateImage()
   this->timer->stop();
   unsigned long frameNumber = IntersonDeviceWindow->GetFrameNumber();
   static unsigned int previousFrame = 0;
+  std::cout << "UpdateImage : Frame number = " << frameNumber << std::endl;
+  timerHits++;
+
   if( record == true )
     {
-    if( restart == true ) // start the recording (initialize the pulse value)
+    if( start == true ) // start the recording (initialize the pulse value)
       {
       pulseValue = GetPulseMin();
       previousFrame += 1;
       }
-    restart = false;
+    start = false;
 
     if( frameNumber != 0 && frameNumber > previousFrame )
       {
       previousFrame = frameNumber;
       IntersonDeviceWindow->StopRecording();
+      timerHits = 0;
+      failRestart = false;
       AddTrackedFramesToList();
 
       // Update the pulse and the frequency of the probe
       if( pulseValue >= this->GetPulseMax() && GetFrequency() >= IntersonFrequencies[ 2 ] )
         {
+        record = false;
         SaveTrackedFrames();
         Stop();
         return;
@@ -248,12 +254,65 @@ void myWindow::UpdateImage()
       Sleep( 100 );
       this->timer->setInterval( 100 );
       }
+    else
+      {
+      if( timerHits >= 50 )
+        {
+        if( failRestart == false )
+          {
+          LOG_INFO( "No images received from the probe ! " );
+          failRestart = true;
+          timerHits = 0;
+          DeconnectConnect();
+          }
+        else
+          {
+          LOG_ERROR( "Couldn't receive new frames from Interson probe. Recording stopped" );
+          timerHits = 0;
+          SaveTrackedFrames();
+          Stop();
+          return;
+          }
+        }
+      }
     }
-  else
+  else // display only
     {
-    ui->vtkRenderer->GetRenderWindow()->Render();
+    if( frameNumber != 0 && frameNumber > previousFrame )
+      {
+      previousFrame = frameNumber;
+      timerHits = 0;
+      ui->vtkRenderer->GetRenderWindow()->Render();
+      }
+    else
+      {
+      if( timerHits >= 50 )
+        {
+        timerHits = 0;
+        DeconnectConnect();
+        }
+      }
     }
   this->timer->start();
+}
+
+void myWindow::DeconnectConnect()
+{
+  LOG_INFO( "Recording stopped and Interson probe disconnected" );
+  IntersonDeviceWindow->StopRecording();
+  Sleep( 100 );
+  IntersonDeviceWindow->Disconnect();
+  Sleep( 100 );
+  LOG_INFO( "Reconnect to Interson probe" );
+  if( IntersonDeviceWindow->Connect() != PLUS_SUCCESS )
+    {
+    LOG_ERROR( "Unable to connect to Interson Probe" );
+    exit( EXIT_FAILURE );
+    }
+  this->IntersonDeviceWindow->SetProbeFrequencyMhz( GetFrequency() );
+  this->IntersonDeviceWindow->SetPulseVoltage( GetPulseMin() );
+  LOG_INFO( "Restart Interson probe" );
+  this->IntersonDeviceWindow->StartRecording(); // start recording frames for the video
 }
 
 void myWindow::Stop()
