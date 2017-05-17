@@ -84,6 +84,7 @@ myWindow::myWindow(QWidget *parent)
 myWindow::~myWindow()
 {
 	LOG_INFO("Destructor of myWindow is called");
+    delete timer;
 	delete ui;
 }
 
@@ -180,7 +181,9 @@ void myWindow::ActionStart()
 	this->IntersonDeviceWindow->SetPulseVoltage(IntersonDeviceWindow->GetPulseMin());
     this->pulseValue = GetPulseMin();
 
+    Sleep( 100 );
 	this->IntersonDeviceWindow->StartRecording(); // start recording frames for the video
+    Sleep( 100 );
 
 	this->timer->setInterval(50);
 	this->connect(timer, SIGNAL(timeout()), SLOT(UpdateImage()));
@@ -205,7 +208,9 @@ void myWindow::UpdateImage()
 		{
 			previousFrame = frameNumber;
 			AddTrackedFramesToList();
+            Sleep( 100 );
 			IntersonDeviceWindow->StopRecording();
+            Sleep( 100 );
 
 			// Update the pulse and the frequency of the probe
 			if (pulseValue >= this->GetPulseMax() && GetFrequency() >= IntersonFrequencies[ 2 ] )
@@ -239,7 +244,9 @@ void myWindow::UpdateImage()
 				}
 				IntersonDeviceWindow->SetPulseVoltage(pulseValue);
 			}
+            Sleep( 100 );
 			this->IntersonDeviceWindow->StartRecording();
+            Sleep( 100 );
 			this->timer->setInterval(10);
 		}
 	}
@@ -255,7 +262,9 @@ void myWindow::Stop()
 	LOG_INFO("Recording stopped");    
     this->timer->stop();
     IntersonDeviceWindow->StopRecording();
+    Sleep( 100 );
     IntersonDeviceWindow->Disconnect();
+    Sleep( 100 );
     recordedFrames->Clear();
 	ui->pushButton_start->setText("Start");
 	ui->pushButton_start->setIcon(QPixmap("../UltrasoundSpectroscopyRecorder/Resources/icon_Record.png"));
@@ -269,7 +278,9 @@ void myWindow::ActionQuit()
 	close();
 
 	this->IntersonDeviceWindow->StopRecording();
+    Sleep( 100 );
 	this->IntersonDeviceWindow->Disconnect();
+    Sleep( 100 );
 }
 
 void myWindow::SetIntersonDevice(vtkIntersonSDKCxxVideoSourceWindow* source)
