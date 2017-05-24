@@ -70,7 +70,9 @@ protected slots:
   void SetOutputFolder( QString outputFolder );
   QString GetOutputFolder() const;
 
+
 protected:
+  void DeconnectConnect();
   int GetPulseMin() const;
   int GetPulseMax() const;
   int GetPulseStep() const;
@@ -84,11 +86,13 @@ private:
   Ui::MainWindow *ui;
   vtkSmartPointer<vtkIntersonSDKCxxVideoSourceWindow> IntersonDeviceWindow;
   QTimer *timer;
-  bool restart; // = true if we start a new record
+  bool start; // = true if we start a new record
   bool record; // = true if we record the images, false if we only display them
   vtkPlusTrackedFrameList* recordedFrames;
   QString outputFolder;
   int pulseValue;
+  bool failRestart; // = true if the program is waiting for more than 5 second whithout receiving another image; in that case we stop and restart the probe.
+  unsigned int timerHits;
 };
 
 #endif

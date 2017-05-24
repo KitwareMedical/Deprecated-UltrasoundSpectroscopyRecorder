@@ -8,7 +8,6 @@
     <Device
       Id="VideoDevice"
       Type="IntersonArraySDKCxxVideo" 
-      RfDecimation="1"
       PulseVoltage="40"
       FrequencyMhz="5.0" >
       <DataSources>
